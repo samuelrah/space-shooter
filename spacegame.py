@@ -17,6 +17,13 @@ pygame.display.set_caption("space game")
 original_bild = pygame.image.load("sprites/SpaceShip.png")
 sprite_rymdskepp = pygame.transform.scale(original_bild, (original_bild.get_width()//2, original_bild.get_height()//2))
 
+# sprite för jetmotorer
+sprite_jetmotor = pygame.image.load("sprites/fire.png")
+
+# sprite för skott
+sprite_skott = pygame.image.load("sprites/bullet.png")
+
+
 # Ladda in alla bakgrundsbilder
 background_mörkblå = pygame.image.load("backgrounds/bg.png")
 background_stjärnor = pygame.image.load("backgrounds/Stars-A.png")
@@ -28,10 +35,37 @@ spelet_körs = True
 bg_y = 0
 spelare_x = 400                    #skärmens_bress // 2 - 120
 spelare_y = 300                     #skärmens_höjd - 200
-spelarens_hastighet = 1
+spelarens_hastighet = 6
+#jet
+jet_x = spelare_x + 13
+jet_y = spelare_y + 46
+#skott
+skott_räknare = 0
+
+#skott lista
+skott_lista = []
+
+class Skott:
+    # Sätter alla startvärdena för skottet
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.hastighet = 10
+        self.bild = sprite_skott
+
+    def flytta(self):
+        self.y -= self.hastighet
+
+    def rita(self, skärm):
+        skärm.blit(self.bild, (self.x, self.y))
+
+    
+
+
 
 #### SPELLOOPEN ####
 while (spelet_körs == True):
+
 
     # Rita ut bakgrundsbilden
     #skapa en mörk bakgrundsbild
@@ -55,23 +89,35 @@ while (spelet_körs == True):
             spelet_körs = False
 
     skärm.blit(sprite_rymdskepp, (spelare_x, spelare_y))
-
-    pygame.display.update()
+    skärm.blit(sprite_jetmotor, (jet_x, jet_y))
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT] and spelare_x > 0:
         spelare_x -= spelarens_hastighet
+        jet_x -= spelarens_hastighet
     if keys[pygame.K_RIGHT] and spelare_x < skärmens_bred - sprite_rymdskepp.get_width():
         spelare_x += spelarens_hastighet
+        jet_x += spelarens_hastighet
     if keys[pygame.K_UP] and spelare_y > 0:
         spelare_y -= spelarens_hastighet
+        jet_y -= spelarens_hastighet
     if keys[pygame.K_DOWN] and spelare_y < skärmens_höjd - sprite_rymdskepp.get_height() + 26:
         spelare_y += spelarens_hastighet
+        jet_y += spelarens_hastighet
+    if keys[pygame.K_SPACE]:
+        skott_lista.append(Skott(spelare_x + 20, spelare_y))
+
+
+    for skott in reversed(skott_lista):
+        skott.flytta()
+        skott.rita(skärm)
+
+        if skott.y < -100:
+            skott_lista.remove(skott)
+
+    pygame.display.update()
+
 pygame.quit()
-
-
-
-
 
 
 
