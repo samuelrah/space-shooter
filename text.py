@@ -12,12 +12,6 @@ skärm = pygame.display.set_mode((skärmens_bred, skärmens_höjd))
 
 pygame.display.set_caption("space game")
 
-#explotions lista
-explosioner = []
-
-SVART = (0, 0, 0)
-FÄRG_LISTA = [(255, 50, 50), (255, 150, 50), (255, 255, 50)] #röd, orange, gul.
-
 ### Ladda in alla sprites och bakgrundsbilder ###
 
 # Sprite för rymdskeppet
@@ -66,21 +60,14 @@ class LitenAstroid:
     def __init__(self, asteroid_liten_x, asteroid_liten_y):
         self.x = asteroid_liten_x
         self.y = asteroid_liten_y
-        self.hastighet = 1
+        self.hastighet = 4
         self.bild = sprite_liten_astroid
-        self.kollisions_rektangel_asteroid = pygame.Rect(self.x, self.y, self.bild.get_width(), self.bild.get_height())
 
     def flytta(self):
         self.y += self.hastighet
-        self.kollisions_rektangel_asteroid.topleft = (self.x, self.y) # Uppdatera rektangelns position
 
     def rita(self, skärm):
         skärm.blit(self.bild, (self.x, self.y))
-
-    def kollidera(self, kollisionsobjekt):
-        if self.kollisions_rektangel_asteroid.colliderect(kollisionsobjekt):
-            print("kollision upptäckt!")
-        return False
 
 
 class Skott:
@@ -88,42 +75,14 @@ class Skott:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.livstid = random.randint(20, 50)
-        self.hastighet_x = random.uniform (-2, 2)
-        self.hastighet_y = random.uniform (-2, 2)
-        self.radius = random.randint(3, 6)
-        self.färg = random.choice(FÄRG_LISTA)
-
-    def uppdatera(self):
-        self.x += self.hastighet_x
-        self.y -= self.hastighet_y
-        self.livstid -= 1
-
-    def rita(self, skärm):
-        if self.livstid > 0:
-            pygame.draw.circle(skärm, self.färg, (int(self.x), int(self.y)), self.radius)
-
+        self.hastighet = 10
+        self.bild = sprite_skott
 
     def flytta(self):
         self.y -= self.hastighet
 
     def rita(self, skärm):
         skärm.blit(self.bild, (self.x, self.y))
-
-class partikel:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.hastighet_x = random.randint(-5, 5)
-        self.hastighet_y = random.randint(-5, 5)
-        self.färg = random.choice(FÄRG_LISTA)
-
-    def flytta(self):
-        self.x += self.hastighet_x
-        self.y += self.hastighet_y
-
-    def rita(self, skärm):
-        pygame.draw.circle(skärm, self.färg, (self.x, self.y), 2)
 
 
 #### SPELLOOPEN ####
@@ -167,23 +126,16 @@ while spelet_körs:
 
     # Hantera asteroidlogik
     asteroid_liten_räknare += 1
-    if asteroid_liten_räknare > 70:
-        # Lägg till pading for att asteroiderna inte spownar på kanterna
-        padding = 100
-        asteroid_liten_lista.append(LitenAstroid(random.randint(padding, skärmens_bred - padding), 0))
+    if asteroid_liten_räknare > 20:
+        asteroid_liten_lista.append(LitenAstroid(random.randint(0, skärmens_bred), 0))
         asteroid_liten_räknare = 0
-
-    # ritar en rektangel runt spelaren för att se om det är en kollision
-    kollisions_rektangel_spelare = pygame.Rect(spelare_x, spelare_y, sprite_rymdskepp.get_width(), sprite_rymdskepp.get_height())
 
     for asteroid_liten in reversed(asteroid_liten_lista):
         asteroid_liten.flytta()
-        asteroid_liten.kollidera(kollisions_rektangel_spelare)
         asteroid_liten.rita(skärm)
 
         if asteroid_liten.y > skärmens_höjd:
             asteroid_liten_lista.remove(asteroid_liten)
-
 
     # Hantera skottlogik
     skott_räknare += 1
